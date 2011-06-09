@@ -643,8 +643,16 @@ class OpenID2MessageTest(unittest.TestCase):
             # .fromPostArgs covers .fromPostArgs, .fromOpenIDArgs,
             # ._fromOpenIDArgs, and .fromOpenIDArgs (since it calls
             # .fromPostArgs).
-            self.failUnlessRaises(AssertionError, self.msg.fromPostArgs,
+            self.failUnlessRaises(message.InvalidNamespace, self.msg.fromPostArgs,
                                   args)
+
+    def test_repetitiveAlias(self):
+        """Make sure repetitive use of namespaces raises InvalidNamespace."""
+        args = {
+            'openid.ns.foo': 'blah',
+            'openid.ns.bar': 'blah',
+            }
+        self.failUnlessRaises(message.InvalidNamespace, self.msg.fromPostArgs, args)
 
     def test_mysterious_missing_namespace_bug(self):
         """A failing test for bug #112"""
@@ -699,27 +707,6 @@ class OpenID2MessageTest(unittest.TestCase):
         self.assertEqual([], missing, missing)
         self.assertEqual(args, m.toPostArgs())
         self.failUnless(m.isOpenID2())
-
-    def test_repetitive_namespaces(self):
-        """
-        Message that raises KeyError during encoding, because openid namespace is used in attributes
-        """
-        args = {'openid.assoc_handle': 'fa1f5ff0-cde4-11dc-a183-3714bfd55ca8',
-                'openid.claimed_id': 'http://binkley.lan/user/test01',
-                'openid.identity': 'http://test01.binkley.lan/',
-                'openid.mode': 'id_res',
-                'openid.ns': 'http://specs.openid.net/auth/2.0',
-                'openid.op_endpoint': 'http://binkley.lan/server',
-                'openid.response_nonce': '2008-01-28T21:07:04Z99Q=',
-                'openid.return_to': 'http://binkley.lan:8001/process?janrain_nonce=2008-01-28T21%3A07%3A02Z0tMIKx',
-                'openid.sig': 'YJlWH4U6SroB1HoPkmEKx9AyGGg=',
-                'openid.signed': 'assoc_handle,identity,response_nonce,return_to,claimed_id,op_endpoint,pape.auth_time,ns.pape,pape.nist_auth_level,pape.auth_policies',
-                'openid.ns.pape': 'http://specs.openid.net/auth/2.0',
-                'openid.pape.auth_policies': 'none',
-                'openid.pape.auth_time': '2008-01-28T20:42:36Z',
-                'openid.pape.nist_auth_level': '0',
-                }
-        self.failUnlessRaises(message.InvalidNamespace, message.Message.fromPostArgs, args)
 
     def test_implicit_sreg_ns(self):
         openid_args = {
