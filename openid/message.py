@@ -563,14 +563,15 @@ class NamespaceMap(object):
         """
         # Check that desired_alias is not an openid protocol field as
         # per the spec.
-        assert desired_alias not in OPENID_PROTOCOL_FIELDS, \
-               "%r is not an allowed namespace alias" % (desired_alias,)
+        if desired_alias in OPENID_PROTOCOL_FIELDS:
+            fmt = "Alias %r is not an allowed namespace alias."
+            raise InvalidNamespace(fmt % desired_alias)
 
         # Check that desired_alias does not contain a period as per
         # the spec.
-        if type(desired_alias) in [str, unicode]:
-            assert '.' not in desired_alias, \
-                   "%r must not contain a dot" % (desired_alias,)
+        if type(desired_alias) in [str, unicode] and '.' in desired_alias:
+            fmt = "Alias %r must not contain a dot."
+            raise InvalidNamespace(fmt % desired_alias)
 
         # Check that there is not a namespace already defined for
         # the desired alias
