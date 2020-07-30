@@ -30,6 +30,12 @@ class UrinormTest(unittest.TestCase):
     def test_lowercase_hostname(self):
         self.assertEqual(urinorm('http://exaMPLE.COm/'), 'http://example.com/')
 
+    def test_ipv4_hostname(self):
+        self.assertEqual(urinorm('http://127.0.0.1/'), 'http://127.0.0.1/')
+
+    def test_ipv6_hostname(self):
+        self.assertEqual(urinorm('http://[fe80::1]/'), 'http://[fe80::1]/')
+
     def test_idn_hostname(self):
         self.assertEqual(urinorm('http://π.example.com/'), 'http://xn--1xa.example.com/')
 

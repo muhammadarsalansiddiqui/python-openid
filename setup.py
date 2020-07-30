@@ -14,6 +14,7 @@ INSTALL_REQUIRES = [
     'cryptography',
     'lxml;platform_python_implementation=="CPython"',
     'lxml <4.0;platform_python_implementation=="PyPy"',
+    'ipaddress;python_version=="2.7"',
 ]
 EXTRAS_REQUIRE = {
     'quality': ('flake8', 'isort'),

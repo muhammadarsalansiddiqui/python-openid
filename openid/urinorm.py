@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 import string
+from ipaddress import ip_address
 
 import six
 from six.moves.urllib.parse import parse_qsl, quote, unquote, urlencode, urlsplit, urlunsplit
@@ -96,6 +97,10 @@ def urinorm(uri):
     except ValueError as error:
         raise ValueError('Invalid hostname {!r}: {}'.format(hostname, error))
     _check_disallowed_characters(hostname, 'hostname')
+    try:
+        hostname_is_ipv6 = bool(ip_address(hostname).version == 6)
+    except ValueError:
+        hostname_is_ipv6 = False
 
     try:
         port = split_uri.port
@@ -106,7 +111,10 @@ def urinorm(uri):
     elif (scheme == 'http' and port == 80) or (scheme == 'https' and port == 443):
         port = ''
 
-    netloc = hostname
+    if hostname_is_ipv6:
+        netloc = '[' + hostname + ']'
+    else:
+        netloc = hostname
     if port:
         netloc = netloc + ':' + six.text_type(port)
     userinfo_chunks = [i for i in (split_uri.username, split_uri.password) if i is not None]
